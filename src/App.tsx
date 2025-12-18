@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Navbar from "./navigation/Navbar";
+import Login from "./sites/Login/Login";
+import AuthProvider from "./contexts/AuthProvider";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./clients/queryClient";
+import MusicPage from "./sites/music/MusicPage";
+import { Suspense } from "react";
+import LoadingComponent from "./utils/LoadingComponent";
+import Home from "./sites/home/Home";
+import AuthComponents from "./utils/AuthComponents";
+
+const routes = [
+    {
+        path: "/",
+        element: <Home />,
+        authOnly: false,
+    },
+    {
+        path: "/music",
+        element: <MusicPage />,
+        authOnly: true,
+    },
+    {
+        path: "/login",
+        element: <Login />,
+        authOnly: false,
+    },
+];
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+        <QueryClientProvider client={queryClient}>
+            <BrowserRouter>
+                <Suspense fallback={<LoadingComponent />}>
+                    <AuthProvider>
+                        <Navbar />
+                        <Routes>
+                            {routes.map((route) => (
+                                <Route
+                                    key={route.path}
+                                    path={route.path}
+                                    element={
+                                        route.authOnly ? (
+                                            <AuthComponents>
+                                                {route.element}
+                                            </AuthComponents>
+                                        ) : (
+                                            route.element
+                                        )
+                                    }
+                                />
+                            ))}
+                        </Routes>
+                    </AuthProvider>
+                </Suspense>
+            </BrowserRouter>
+        </QueryClientProvider>
+    );
 }
 
-export default App
+export default App;
