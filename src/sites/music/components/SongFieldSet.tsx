@@ -20,7 +20,7 @@ function SongFieldSet({
     name,
     isLink,
 }: SongFieldSetProps) {
-    const compHeader = required ? `${header}*` : header;
+    const compHeader = required && isEdit ? `${header}*` : header;
 
     let displayComp = <Label>{defaultValue}</Label>;
 
@@ -30,7 +30,7 @@ function SongFieldSet({
                 className="border rounded-2xl w-full px-3 py-1"
                 disabled={isPending}
                 name={name}
-                required
+                required={required ?? false}
                 defaultValue={defaultValue}
             />
         );

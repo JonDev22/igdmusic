@@ -1,20 +1,21 @@
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import SongList from "./components/SongList";
 import useAuthContext from "../../hooks/useAuthContext";
 import { MusicalNoteIcon, PlusIcon } from "@heroicons/react/24/solid";
 
 import type { ISong } from "../../interfaces/ISong";
 import CreateSongDialog from "./components/CreateSongDialog";
-import SongDetails from "./components/SongDetails";
+import type { SongFilterProps } from "./interfaces/SongFilterProps";
+import { Input } from "@headlessui/react";
 
 function musicReducer(
     state: {
         isAdd: boolean;
         isEdit: boolean;
         isDetails: boolean;
-        song: ISong | null;
+        song?: ISong | null;
     },
-    action: { type: string; song: ISong | null },
+    action: { type: string; song?: ISong | null },
 ) {
     switch (action.type) {
         case "ADD_SONG":
@@ -26,8 +27,8 @@ function musicReducer(
             };
         case "SHOW_SONG":
             return {
-                isAdd: false,
-                isDetails: true,
+                isAdd: true,
+                isDetails: false,
                 isEdit: false,
                 song: action.song,
             };
@@ -53,6 +54,15 @@ function musicReducer(
 function MusicPage() {
     const { songs } = useAuthContext();
 
+    const [filters, setFilters] = useState<SongFilterProps>({
+        name: "",
+        date: "",
+    });
+
+    const filterSongs = (songs: ISong[], filter: SongFilterProps): ISong[] => {
+        return songs.filter((song) => song.title.includes(filter.name));
+    };
+
     const [musicState, dispatch] = useReducer(musicReducer, {
         isAdd: false,
         isDetails: false,
@@ -66,30 +76,53 @@ function MusicPage() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto p-4">
-            <div className="flex gap-5">
-                <div className="border flex items-center p-2 gap-2 rounded-2xl">
-                    <MusicalNoteIcon className="w-6 h-6" /> {songs.length} songs
-                </div>
-                <div
-                    className="flex items-center p-2 gap-2 border bg-transparent rounded-2xl hover:cursor-pointer hover:bg-blue-900"
-                    onClick={() => dispatch({ type: "ADD_SONG", song: null })}
-                >
-                    <PlusIcon className="w-6 h-6" />
-                    <p>Add Song</p>
-                </div>
+        <div>
+            <div className="bg-blue-950 py-12 flex gap-4 items-center mx-auto justify-center">
+                <MusicalNoteIcon className="w-12 h-12 bg-blue-800 p-2 rounded-2xl border-blue-50" />
+                <h1 className="text-white text-center text-4xl font-bold">
+                    Music
+                </h1>
             </div>
-            <SongList songs={songs} pickSong={pickSong} />
-            <CreateSongDialog
-                isOpen={musicState.isAdd}
-                onClose={() => dispatch({ type: "CLOSE_DIALOG", song: null })}
-                song={musicState.song}
-            />
-            <SongDetails
-                isOpen={musicState.isDetails}
-                onClose={() => dispatch({ type: "CLOSE_DIALOG", song: null })}
-                song={musicState.song ?? ({} as ISong)}
-            />
+
+            <div className="max-w-7xl mx-auto p-4 text-black">
+                <div className="flex gap-5 flex-col sm:flex-row">
+                    <div className="border flex items-center p-2 gap-2 rounded-2xl">
+                        <MusicalNoteIcon className="w-6 h-6" /> {songs.length}{" "}
+                        songs
+                    </div>
+
+                    <Input
+                        className="border px-2 rounded-lg flex-1"
+                        placeholder="Search song by title..."
+                        onChange={(e) =>
+                            setFilters({ ...filters, name: e.target.value })
+                        }
+                    />
+
+                    <div
+                        className="flex items-center p-2 gap-2 border rounded-2xl hover:cursor-pointer bg-blue-900 text-white"
+                        onClick={() =>
+                            dispatch({ type: "ADD_SONG", song: null })
+                        }
+                    >
+                        <PlusIcon className="w-6 h-6" />
+                        <p>Add Song</p>
+                    </div>
+                </div>
+
+                <div className="h-5 border-b-2 border-blue-500" />
+
+                <SongList
+                    songs={filterSongs(songs, filters)}
+                    pickSong={pickSong}
+                />
+
+                <CreateSongDialog
+                    isOpen={musicState.isAdd}
+                    onClose={() => dispatch({ type: "CLOSE_DIALOG" })}
+                    song={musicState.song}
+                />
+            </div>
         </div>
     );
 }
