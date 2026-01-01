@@ -11,6 +11,7 @@ import { useQueryClient, useSuspenseQueries } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import type { IUser } from "../interfaces/IUser";
 import type { ISong } from "../interfaces/ISong";
+import type { Sunday } from "../interfaces/ISundays";
 import { onAuthStateChanged, type User } from "firebase/auth";
 
 export const AuthContext = createContext<{
@@ -19,6 +20,11 @@ export const AuthContext = createContext<{
     addSong: (song: ISong) => void;
     updateSong: (song: ISong) => void;
     deleteSong: (songId: string) => void;
+
+    sundays: Sunday[];
+    addSunday: (sunday: Sunday) => void;
+    updateSunday: (sunday: Sunday) => void;
+    deleteSunday: (sundayId: string) => void;
 } | null>(null);
 
 interface AuthProviderProps {
@@ -46,10 +52,26 @@ function AuthProvider({ children }: AuthProviderProps) {
                     }
                 },
             },
+            {
+                queryKey: ["sundays"],
+                queryFn: async () => {
+                    try {
+                        const sundaysCollection = collection(db, "sundays");
+                        const snapshot = await getDocs(sundaysCollection);
+                        return snapshot.docs.map((doc) => ({
+                            id: doc.id,
+                            ...doc.data(),
+                        })) as Sunday[];
+                    } catch {
+                        return [];
+                    }
+                },
+            },
         ],
     });
 
     const songs = result[0].data ?? [];
+    const sundays = result[1].data ?? [];
 
     const addSong = (song: ISong) => {
         queryClient.setQueryData<ISong[]>(["songs"], (old = []) => [
@@ -67,6 +89,25 @@ function AuthProvider({ children }: AuthProviderProps) {
     const deleteSong = (songId: string) => {
         queryClient.setQueryData<ISong[]>(["songs"], (old = []) =>
             old.filter((s) => s.id !== songId),
+        );
+    };
+
+    const addSunday = (sunday: Sunday) => {
+        queryClient.setQueryData<Sunday[]>(["sundays"], (old = []) => [
+            ...old,
+            sunday,
+        ]);
+    };
+
+    const updateSunday = (updatedSunday: Sunday) => {
+        queryClient.setQueryData<Sunday[]>(["sundays"], (old = []) =>
+            old.map((s) => (s.id === updatedSunday.id ? updatedSunday : s)),
+        );
+    };
+
+    const deleteSunday = (sundayId: string) => {
+        queryClient.setQueryData<Sunday[]>(["sundays"], (old = []) =>
+            old.filter((s) => s.id !== sundayId),
         );
     };
 
@@ -88,7 +129,9 @@ function AuthProvider({ children }: AuthProviderProps) {
             if (user) {
                 const res = await fetchUser(user);
                 setUser(res);
-                await queryClient.invalidateQueries({ queryKey: ["songs"] });
+                await queryClient.invalidateQueries({
+                    queryKey: ["songs", "sundays"],
+                });
             } else {
                 setUser(null);
             }
@@ -102,6 +145,10 @@ function AuthProvider({ children }: AuthProviderProps) {
         addSong,
         updateSong,
         deleteSong,
+        sundays,
+        addSunday,
+        updateSunday,
+        deleteSunday,
     };
 
     return (
