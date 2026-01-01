@@ -9,6 +9,9 @@ import { Suspense } from "react";
 import LoadingComponent from "./utils/LoadingComponent";
 import Home from "./sites/home/Home";
 import AuthComponents from "./utils/AuthComponents";
+import ContactPage from "./sites/contact/ContactPage";
+import ValuesPage from "./sites/values/ValuesPage";
+import PlanningPage from "./sites/planning/PlanningPage";
 
 const routes = [
     {
@@ -20,6 +23,21 @@ const routes = [
         path: "/music",
         element: <MusicPage />,
         authOnly: true,
+    },
+    {
+        path: "/contact",
+        element: <ContactPage />,
+        authOnly: false,
+    },
+    {
+        path: "/planning",
+        element: <PlanningPage />,
+        authOnly: true,
+    },
+    {
+        path: "/values",
+        element: <ValuesPage />,
+        authOnly: false,
     },
     {
         path: "/login",

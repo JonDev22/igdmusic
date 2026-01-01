@@ -10,7 +10,9 @@ import {
     Bars3Icon,
     XMarkIcon,
     UserCircleIcon,
+    MusicalNoteIcon,
 } from "@heroicons/react/24/outline";
+import { useLocation } from "react-router-dom";
 
 interface NavItem {
     name: string;
@@ -19,20 +21,36 @@ interface NavItem {
 
 const navigation: NavItem[] = [
     { name: "Home", href: "/" },
-    { name: "Music", href: "/music" },
-    { name: "Contact", href: "/contact" },
+    { name: "Musik", href: "/music" },
+    // { name: "Planung", href: "/planning" },
+    { name: "Werte", href: "/values" },
 ];
 
 function Navbar() {
+    const location = useLocation();
+    const activePath = location.pathname;
+
+    const activeClass = "bg-blue-900 text-white";
+    const inactiveClass =
+        "text-white px-3 py-2 rounded-2xl text-sm font-medium";
+
+    const linkTextActive = "text-white";
+    const linkTextInactive = "text-blue-900";
+
+    const hoverClass = "hover:bg-blue-300";
+
     return (
-        <Disclosure as="nav" className="bg-gray-800">
+        <Disclosure as="nav" className="bg-white">
             {({ open }) => (
                 <>
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex h-16 justify-between items-center">
                             {/* Logo on the right */}
-                            <div className="shrink-0 text-white font-bold text-lg">
-                                IGDuisburg
+                            <div className="shrink-0 flex gap-2 items-center">
+                                <MusicalNoteIcon className="w-10 h-10 font-bold text-white bg-linear-120 from-blue-900 to-blue-400 p-2 rounded-xl" />
+                                <p className="text-black font-bold text-xl">
+                                    IGDuisburg
+                                </p>
                             </div>
 
                             {/* Desktop navigation */}
@@ -41,9 +59,24 @@ function Navbar() {
                                     <NavLink
                                         key={item.name}
                                         to={item.href}
-                                        className="text-white hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                                        className={`
+                                            px-3 py-2 rounded-md
+                                            ${
+                                                activePath === item.href
+                                                    ? activeClass
+                                                    : `${inactiveClass} ${hoverClass}`
+                                            }
+                                            `}
                                     >
-                                        {item.name}
+                                        <p
+                                            className={
+                                                activePath === item.href
+                                                    ? linkTextActive
+                                                    : linkTextInactive
+                                            }
+                                        >
+                                            {item.name}
+                                        </p>
                                     </NavLink>
                                 ))}
                                 <NavLink to="/login">
