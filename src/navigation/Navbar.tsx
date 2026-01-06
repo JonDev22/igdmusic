@@ -1,5 +1,4 @@
 import { Fragment } from "react";
-import { NavLink } from "react-router-dom";
 import {
     Disclosure,
     Transition,
@@ -12,24 +11,26 @@ import {
     UserCircleIcon,
     MusicalNoteIcon,
 } from "@heroicons/react/24/outline";
-import { useLocation } from "react-router-dom";
+import type { PageType } from "../types/PageType";
 
 interface NavItem {
     name: string;
-    href: string;
+    page: PageType;
+}
+
+interface NavbarProps {
+    activePage: PageType;
+    setActivePage: (page: PageType) => void;
 }
 
 const navigation: NavItem[] = [
-    { name: "Home", href: "/" },
-    { name: "Musik", href: "/music" },
-    // { name: "Planung", href: "/planning" },
-    { name: "Werte", href: "/values" },
+    { name: "Home", page: "home" },
+    { name: "Musik", page: "music" },
+    { name: "Planung", page: "planning" },
+    { name: "Werte", page: "values" },
 ];
 
-function Navbar() {
-    const location = useLocation();
-    const activePath = location.pathname;
-
+function Navbar({ activePage, setActivePage }: NavbarProps) {
     const activeClass = "bg-blue-900 text-white";
     const inactiveClass =
         "text-white px-3 py-2 rounded-2xl text-sm font-medium";
@@ -56,13 +57,13 @@ function Navbar() {
                             {/* Desktop navigation */}
                             <div className="hidden md:flex space-x-4 items-center">
                                 {navigation.map((item) => (
-                                    <NavLink
+                                    <button
                                         key={item.name}
-                                        to={item.href}
+                                        onClick={() => setActivePage(item.page)}
                                         className={`
                                             px-3 py-2 rounded-md
                                             ${
-                                                activePath === item.href
+                                                activePage === item.page
                                                     ? activeClass
                                                     : `${inactiveClass} ${hoverClass}`
                                             }
@@ -70,18 +71,18 @@ function Navbar() {
                                     >
                                         <p
                                             className={
-                                                activePath === item.href
+                                                activePage === item.page
                                                     ? linkTextActive
                                                     : linkTextInactive
                                             }
                                         >
                                             {item.name}
                                         </p>
-                                    </NavLink>
+                                    </button>
                                 ))}
-                                <NavLink to="/login">
+                                <button onClick={() => setActivePage("login")}>
                                     <UserCircleIcon className="h-8 w-8 text-white" />
-                                </NavLink>
+                                </button>
                             </div>
 
                             {/* Mobile menu button */}
@@ -116,13 +117,13 @@ function Navbar() {
                         <DisclosurePanel className="md:hidden">
                             <div className="space-y-1 px-2 pt-2 pb-3">
                                 {navigation.map((item) => (
-                                    <NavLink
+                                    <button
                                         key={item.name}
-                                        to={item.href}
-                                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                                        onClick={() => setActivePage(item.page)}
+                                        className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                                     >
                                         {item.name}
-                                    </NavLink>
+                                    </button>
                                 ))}
                             </div>
                         </DisclosurePanel>

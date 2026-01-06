@@ -1,11 +1,11 @@
+import { Button } from "@headlessui/react";
 import {
     LightBulbIcon,
     SparklesIcon,
     UserGroupIcon,
 } from "@heroicons/react/24/outline";
-import { Link } from "react-router-dom";
 
-function Home() {
+function Home({ onChange }: { onChange: (index: number) => void }) {
     return (
         <section className="min-h-screen bg-linear-to-b from-slate-950 via-blue-950 to-slate-900 text-white overflow-hidden">
             {/* Hero Section */}
@@ -42,22 +42,22 @@ function Home() {
 
                         {/* CTA Buttons */}
                         <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8">
-                            <Link
-                                to="/music"
+                            <Button
+                                onClick={() => onChange(1)}
                                 className="group relative inline-flex items-center justify-center px-8 py-4 font-semibold text-lg rounded-xl transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/50 bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 transform hover:scale-105"
                             >
                                 <LightBulbIcon className="h-6 w-6 mr-3 text-white" />
                                 <span className="text-white">
                                     Sieh dir unsere Lieder an
                                 </span>
-                            </Link>
-                            <Link
-                                to="/values"
+                            </Button>
+                            <Button
+                                onClick={() => onChange(3)}
                                 className="group inline-flex items-center justify-center px-8 py-4 font-semibold text-lg rounded-xl transition-all duration-300 border-2 border-blue-400 hover:bg-blue-400/10 text-blue-300 hover:text-blue-200 transform hover:scale-105"
                             >
                                 <SparklesIcon className="h-6 w-6 mr-3 group-hover:animate-pulse text-white" />
                                 <span className="text-white">Unsere Werte</span>
-                            </Link>
+                            </Button>
                         </div>
                     </div>
 

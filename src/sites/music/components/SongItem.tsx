@@ -3,7 +3,6 @@ import {
     LinkIcon,
     PencilIcon,
 } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router-dom";
 import type { ISong } from "../../../interfaces/ISong";
 
 interface SongItemProps {
@@ -12,8 +11,6 @@ interface SongItemProps {
 }
 
 function SongItem({ song, pickSong }: SongItemProps) {
-    const navigate = useNavigate();
-
     const createBadge = (text: string, link: string, color: "red" | "blue") => {
         const bgColor = color === "red" ? "bg-red-500" : "bg-blue-300";
         const hoverColor =
@@ -22,7 +19,7 @@ function SongItem({ song, pickSong }: SongItemProps) {
         return (
             <div
                 className={`rounded-xl ${bgColor} p-2 flex items-center gap-2 text-white hover:cursor-pointer ${hoverColor}`}
-                onClick={() => navigate(link)}
+                onClick={() => window.open(link, "_blank")}
             >
                 <LinkIcon className="w-4 h-4" />
                 <p>{text}</p>
