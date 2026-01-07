@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useState, useEffect } from "react";
 import {
     Disclosure,
     Transition,
@@ -19,6 +19,18 @@ interface NavbarProps {
 }
 
 function Navbar({ tabs }: NavbarProps) {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768); // md breakpoint is 768px
+        };
+
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
+
     return (
         <Disclosure as="nav" className="bg-white">
             {({ open }) => (
@@ -34,26 +46,28 @@ function Navbar({ tabs }: NavbarProps) {
                             </div>
 
                             {/* Desktop navigation */}
-                            <TabList className="hidden md:flex space-x-2 items-center">
-                                {tabs.map((item) => (
-                                    <Tab as={Fragment} key={item.name}>
+                            {!isMobile && (
+                                <TabList className="hidden md:flex space-x-2 items-center">
+                                    {tabs.map((item) => (
+                                        <Tab as={Fragment} key={item.name}>
+                                            {({ hover, selected }) => (
+                                                <p
+                                                    className={`px-4 py-2 rounded-lg bg-blue-600 text-white ${hover && "hover:bg-blue-700 hover:cursor-pointer"} ${selected && "bg-blue-900"}`}
+                                                >
+                                                    {item.name}
+                                                </p>
+                                            )}
+                                        </Tab>
+                                    ))}
+                                    <Tab as={Fragment}>
                                         {({ hover, selected }) => (
-                                            <p
-                                                className={`px-4 py-2 rounded-lg bg-blue-600 text-white ${hover && "hover:bg-blue-700 hover:cursor-pointer"} ${selected && "bg-blue-900"}`}
-                                            >
-                                                {item.name}
-                                            </p>
+                                            <UserCircleIcon
+                                                className={`rounded-lg text-black ${hover && "hover:text-gray-500 hover:cursor-pointer"} ${selected && "text-gray-500"} h-10 w-10`}
+                                            />
                                         )}
                                     </Tab>
-                                ))}
-                                <Tab as={Fragment}>
-                                    {({ hover, selected }) => (
-                                        <UserCircleIcon
-                                            className={`rounded-lg text-black ${hover && "hover:text-gray-500 hover:cursor-pointer"} ${selected && "text-gray-500"} h-10 w-10`}
-                                        />
-                                    )}
-                                </Tab>
-                            </TabList>
+                                </TabList>
+                            )}
 
                             {/* Mobile menu button */}
                             <div className="md:hidden flex items-center">
@@ -85,26 +99,28 @@ function Navbar({ tabs }: NavbarProps) {
                         leaveTo="transform opacity-0 scale-95"
                     >
                         <DisclosurePanel className="md:hidden">
-                            <TabList className="space-y-1 px-2 pt-2 pb-3">
-                                {tabs.map((item) => (
-                                    <Tab key={item.name} as={Fragment}>
+                            {isMobile && (
+                                <TabList className="space-y-1 px-2 pt-2 pb-3">
+                                    {tabs.map((item) => (
+                                        <Tab key={item.name} as={Fragment}>
+                                            {({ hover, selected }) => (
+                                                <p
+                                                    className={`px-4 py-2 rounded-lg bg-blue-600 text-white ${hover && "hover:bg-blue-700 hover:cursor-pointer"} ${selected && "bg-blue-900"}`}
+                                                >
+                                                    {item.name}
+                                                </p>
+                                            )}
+                                        </Tab>
+                                    ))}
+                                    <Tab as={Fragment}>
                                         {({ hover, selected }) => (
-                                            <p
-                                                className={`px-4 py-2 rounded-lg bg-blue-600 text-white ${hover && "hover:bg-blue-700 hover:cursor-pointer"} ${selected && "bg-blue-900"}`}
-                                            >
-                                                {item.name}
-                                            </p>
+                                            <UserCircleIcon
+                                                className={`rounded-lg text-black ${hover && "hover:text-gray-500 hover:cursor-pointer"} ${selected && "text-gray-500"} h-10 w-10`}
+                                            />
                                         )}
                                     </Tab>
-                                ))}
-                                <Tab as={Fragment}>
-                                    {({ hover, selected }) => (
-                                        <UserCircleIcon
-                                            className={`rounded-lg text-black ${hover && "hover:text-gray-500 hover:cursor-pointer"} ${selected && "text-gray-500"} h-10 w-10`}
-                                        />
-                                    )}
-                                </Tab>
-                            </TabList>
+                                </TabList>
+                            )}
                         </DisclosurePanel>
                     </Transition>
                 </>
