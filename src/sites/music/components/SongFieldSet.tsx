@@ -1,5 +1,4 @@
 import { Fieldset, Input, Label } from "@headlessui/react";
-import { Link } from "react-router-dom";
 
 interface SongFieldSetProps {
     header: string;
@@ -22,7 +21,20 @@ function SongFieldSet({
 }: SongFieldSetProps) {
     const compHeader = required && isEdit ? `${header}*` : header;
 
-    let displayComp = <Label>{defaultValue}</Label>;
+    let displayComp = (
+        <Label
+            className={
+                isLink
+                    ? "hover:text-blue-400 hover:underline hover:cursor-pointer"
+                    : ""
+            }
+            onClick={() =>
+                isLink ? window.open(defaultValue, "_blank") : null
+            }
+        >
+            {defaultValue}
+        </Label>
+    );
 
     if (isEdit) {
         displayComp = (
@@ -34,8 +46,6 @@ function SongFieldSet({
                 defaultValue={defaultValue}
             />
         );
-    } else if (isLink) {
-        displayComp = <Link to={defaultValue ?? ""}>{header}</Link>;
     }
 
     return (

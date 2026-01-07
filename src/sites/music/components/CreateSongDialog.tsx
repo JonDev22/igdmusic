@@ -97,7 +97,6 @@ function CreateSongDialog({ isOpen, onClose, song }: CreateSongDialogProps) {
                             required
                             isPending={isPending}
                             isEdit={song ? isEdit : true}
-                            isLink
                         />
 
                         <SongFieldSet
@@ -116,6 +115,7 @@ function CreateSongDialog({ isOpen, onClose, song }: CreateSongDialogProps) {
                             defaultValue={song ? song.order : ""}
                             isPending={isPending}
                             isEdit={song ? isEdit : true}
+                            isLink
                         />
 
                         <SongFieldSet
