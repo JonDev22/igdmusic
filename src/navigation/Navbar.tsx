@@ -4,6 +4,8 @@ import {
     Transition,
     DisclosurePanel,
     DisclosureButton,
+    TabList,
+    Tab,
 } from "@headlessui/react";
 import {
     Bars3Icon,
@@ -11,35 +13,12 @@ import {
     UserCircleIcon,
     MusicalNoteIcon,
 } from "@heroicons/react/24/outline";
-import type { PageType } from "../types/PageType";
-
-interface NavItem {
-    name: string;
-    page: PageType;
-}
 
 interface NavbarProps {
-    activePage: PageType;
-    setActivePage: (page: PageType) => void;
+    tabs: { name: string }[];
 }
 
-const navigation: NavItem[] = [
-    { name: "Home", page: "home" },
-    { name: "Musik", page: "music" },
-    { name: "Planung", page: "planning" },
-    { name: "Werte", page: "values" },
-];
-
-function Navbar({ activePage, setActivePage }: NavbarProps) {
-    const activeClass = "bg-blue-900 text-white";
-    const inactiveClass =
-        "text-white px-3 py-2 rounded-2xl text-sm font-medium";
-
-    const linkTextActive = "text-white";
-    const linkTextInactive = "text-blue-900";
-
-    const hoverClass = "hover:bg-blue-300";
-
+function Navbar({ tabs }: NavbarProps) {
     return (
         <Disclosure as="nav" className="bg-white">
             {({ open }) => (
@@ -55,35 +34,26 @@ function Navbar({ activePage, setActivePage }: NavbarProps) {
                             </div>
 
                             {/* Desktop navigation */}
-                            <div className="hidden md:flex space-x-4 items-center">
-                                {navigation.map((item) => (
-                                    <button
-                                        key={item.name}
-                                        onClick={() => setActivePage(item.page)}
-                                        className={`
-                                            px-3 py-2 rounded-md
-                                            ${
-                                                activePage === item.page
-                                                    ? activeClass
-                                                    : `${inactiveClass} ${hoverClass}`
-                                            }
-                                            `}
-                                    >
-                                        <p
-                                            className={
-                                                activePage === item.page
-                                                    ? linkTextActive
-                                                    : linkTextInactive
-                                            }
-                                        >
-                                            {item.name}
-                                        </p>
-                                    </button>
+                            <TabList className="hidden md:flex space-x-2 items-center">
+                                {tabs.map((item) => (
+                                    <Tab as={Fragment} key={item.name}>
+                                        {({ hover, selected }) => (
+                                            <p
+                                                className={`px-4 py-2 rounded-lg bg-blue-600 text-white ${hover && "hover:bg-blue-700 hover:cursor-pointer"} ${selected && "bg-blue-900"}`}
+                                            >
+                                                {item.name}
+                                            </p>
+                                        )}
+                                    </Tab>
                                 ))}
-                                <button onClick={() => setActivePage("login")}>
-                                    <UserCircleIcon className="h-8 w-8 text-white" />
-                                </button>
-                            </div>
+                                <Tab as={Fragment}>
+                                    {({ hover, selected }) => (
+                                        <UserCircleIcon
+                                            className={`rounded-lg text-black ${hover && "hover:text-gray-500 hover:cursor-pointer"} ${selected && "text-gray-500"} h-10 w-10`}
+                                        />
+                                    )}
+                                </Tab>
+                            </TabList>
 
                             {/* Mobile menu button */}
                             <div className="md:hidden flex items-center">
@@ -115,17 +85,26 @@ function Navbar({ activePage, setActivePage }: NavbarProps) {
                         leaveTo="transform opacity-0 scale-95"
                     >
                         <DisclosurePanel className="md:hidden">
-                            <div className="space-y-1 px-2 pt-2 pb-3">
-                                {navigation.map((item) => (
-                                    <button
-                                        key={item.name}
-                                        onClick={() => setActivePage(item.page)}
-                                        className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                                    >
-                                        {item.name}
-                                    </button>
+                            <TabList className="space-y-1 px-2 pt-2 pb-3">
+                                {tabs.map((item) => (
+                                    <Tab key={item.name} as={Fragment}>
+                                        {({ hover, selected }) => (
+                                            <p
+                                                className={`px-4 py-2 rounded-lg bg-blue-600 text-white ${hover && "hover:bg-blue-700 hover:cursor-pointer"} ${selected && "bg-blue-900"}`}
+                                            >
+                                                {item.name}
+                                            </p>
+                                        )}
+                                    </Tab>
                                 ))}
-                            </div>
+                                <Tab as={Fragment}>
+                                    {({ hover, selected }) => (
+                                        <UserCircleIcon
+                                            className={`rounded-lg text-black ${hover && "hover:text-gray-500 hover:cursor-pointer"} ${selected && "text-gray-500"} h-10 w-10`}
+                                        />
+                                    )}
+                                </Tab>
+                            </TabList>
                         </DisclosurePanel>
                     </Transition>
                 </>
