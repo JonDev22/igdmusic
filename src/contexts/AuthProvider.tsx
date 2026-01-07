@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 // Firebase
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
@@ -14,18 +14,7 @@ import type { ISong } from "../interfaces/ISong";
 import type { Sunday } from "../interfaces/ISundays";
 import { onAuthStateChanged, type User } from "firebase/auth";
 
-export const AuthContext = createContext<{
-    user: IUser | null;
-    songs: ISong[];
-    addSong: (song: ISong) => void;
-    updateSong: (song: ISong) => void;
-    deleteSong: (songId: string) => void;
-
-    sundays: Sunday[];
-    addSunday: (sunday: Sunday) => void;
-    updateSunday: (sunday: Sunday) => void;
-    deleteSunday: (sundayId: string) => void;
-} | null>(null);
+import { AuthContext } from "./AuthContext";
 
 interface AuthProviderProps {
     children: ReactNode;

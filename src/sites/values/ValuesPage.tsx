@@ -11,6 +11,7 @@ function ValuesPage() {
         { id: "werte", title: "Werte" },
         { id: "voraussetzung", title: "Voraussetzung" },
         { id: "jungerschaft", title: "Jüngerschaft" },
+        { id: "verantwortung", title: "Verantwortungen" },
     ];
 
     return (
