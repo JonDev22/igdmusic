@@ -52,7 +52,7 @@ function musicReducer(
 }
 
 function MusicPage() {
-    const { songs } = useAuthContext();
+    const { songs, user } = useAuthContext();
 
     const [filters, setFilters] = useState<SongFilterProps>({
         name: "",
@@ -99,15 +99,22 @@ function MusicPage() {
                         }
                     />
 
-                    <div
-                        className="flex items-center p-2 gap-2 border rounded-2xl hover:cursor-pointer bg-blue-900 text-white"
-                        onClick={() =>
-                            dispatch({ type: "ADD_SONG", song: null })
-                        }
-                    >
-                        <PlusIcon className="w-6 h-6" />
-                        <p>Add Song</p>
-                    </div>
+                    {user && (
+                        <div
+                            className={`flex items-center p-2 gap-2 border rounded-2xl ${
+                                user
+                                    ? "hover:cursor-pointer bg-blue-900 text-white"
+                                    : "bg-gray-400 text-gray-600 cursor-not-allowed opacity-50"
+                            }`}
+                            onClick={() =>
+                                user &&
+                                dispatch({ type: "ADD_SONG", song: null })
+                            }
+                        >
+                            <PlusIcon className="w-6 h-6" />
+                            <p>Add Song</p>
+                        </div>
+                    )}
                 </div>
 
                 <div className="h-5 border-b-2 border-blue-500" />

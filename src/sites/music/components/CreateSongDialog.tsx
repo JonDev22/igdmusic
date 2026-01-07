@@ -97,6 +97,7 @@ function CreateSongDialog({ isOpen, onClose, song }: CreateSongDialogProps) {
                             required
                             isPending={isPending}
                             isEdit={song ? isEdit : true}
+                            isLink
                         />
 
                         <SongFieldSet
@@ -115,7 +116,6 @@ function CreateSongDialog({ isOpen, onClose, song }: CreateSongDialogProps) {
                             defaultValue={song ? song.order : ""}
                             isPending={isPending}
                             isEdit={song ? isEdit : true}
-                            isLink
                         />
 
                         <SongFieldSet
@@ -127,7 +127,7 @@ function CreateSongDialog({ isOpen, onClose, song }: CreateSongDialogProps) {
                         />
 
                         <div className="flex gap-3 justify-end flex-col md:flex-row pt-4">
-                            {!song && (
+                            {context.user && !song && (
                                 <Button
                                     disabled={isPending}
                                     type="submit"
@@ -136,7 +136,7 @@ function CreateSongDialog({ isOpen, onClose, song }: CreateSongDialogProps) {
                                     Add Song
                                 </Button>
                             )}
-                            {song && isEdit && (
+                            {context.user && song && isEdit && (
                                 <Button
                                     disabled={isPending}
                                     type="submit"
@@ -145,7 +145,7 @@ function CreateSongDialog({ isOpen, onClose, song }: CreateSongDialogProps) {
                                     Update Song
                                 </Button>
                             )}
-                            {song && (
+                            {context.user && song && (
                                 <Button
                                     onClick={() => setIsEdit(!isEdit)}
                                     className="px-6 py-2 bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -153,7 +153,7 @@ function CreateSongDialog({ isOpen, onClose, song }: CreateSongDialogProps) {
                                     {isEdit ? "Cancel Edit" : "Edit"}
                                 </Button>
                             )}
-                            {song && !isEdit && (
+                            {context.user && song && !isEdit && (
                                 <Button
                                     onClick={deleteSongFunction}
                                     className="px-6 py-2 bg-linear-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"

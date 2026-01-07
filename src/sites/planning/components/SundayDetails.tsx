@@ -34,9 +34,11 @@ function SundayDetails({
     clearSundaySelection,
 }: SundayDetailsProps) {
     const context = useAuthContext();
+    const { user } = useAuthContext();
     const [sunday, setSunday] = useState<Sunday | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Update sunday state when selectedSunday changes
     useEffect(() => {
@@ -195,115 +197,147 @@ function SundayDetails({
                                         </div>
                                     </div>
 
-                                    <div className="flex gap-1">
-                                        {index > 0 && (
+                                    {user && (
+                                        <div className="flex gap-1">
+                                            {index > 0 && (
+                                                <button
+                                                    onClick={() =>
+                                                        handleReorderSongs(
+                                                            index,
+                                                            index - 1,
+                                                        )
+                                                    }
+                                                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all"
+                                                    title="Nach oben"
+                                                >
+                                                    ↑
+                                                </button>
+                                            )}
+                                            {index < sortedItems.length - 1 && (
+                                                <button
+                                                    onClick={() =>
+                                                        handleReorderSongs(
+                                                            index,
+                                                            index + 1,
+                                                        )
+                                                    }
+                                                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all"
+                                                    title="Nach unten"
+                                                >
+                                                    ↓
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() =>
-                                                    handleReorderSongs(
-                                                        index,
-                                                        index - 1,
-                                                    )
+                                                    handleRemoveSong(item.id)
                                                 }
-                                                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all"
-                                                title="Nach oben"
+                                                className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-all"
+                                                title="Entfernen"
                                             >
-                                                ↑
+                                                ✕
                                             </button>
-                                        )}
-                                        {index < sortedItems.length - 1 && (
-                                            <button
-                                                onClick={() =>
-                                                    handleReorderSongs(
-                                                        index,
-                                                        index + 1,
-                                                    )
-                                                }
-                                                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all"
-                                                title="Nach unten"
-                                            >
-                                                ↓
-                                            </button>
-                                        )}
-                                        <button
-                                            onClick={() =>
-                                                handleRemoveSong(item.id)
-                                            }
-                                            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-all"
-                                            title="Entfernen"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))
                         )}
                     </div>
 
-                    <div className="flex justify-end gap-2 pb-4">
-                        <Button
-                            onClick={handleUpdate}
-                            disabled={!hasChanges || isLoading}
-                            className={`px-6 py-2 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl ${
-                                hasChanges && !isLoading
-                                    ? "bg-linear-to-r from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600"
-                                    : "bg-linear-to-r from-gray-500 to-gray-600 cursor-not-allowed"
-                            }`}
-                        >
-                            {isLoading ? "Wird aktualisiert..." : "Update"}
-                        </Button>
+                    {user && (
+                        <div className="flex justify-end gap-2 pb-4">
+                            <Button
+                                onClick={handleUpdate}
+                                disabled={!hasChanges || isLoading}
+                                className={`px-6 py-2 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl ${
+                                    hasChanges && !isLoading
+                                        ? "bg-linear-to-r from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600"
+                                        : "bg-linear-to-r from-gray-500 to-gray-600 cursor-not-allowed"
+                                }`}
+                            >
+                                {isLoading ? "Wird aktualisiert..." : "Update"}
+                            </Button>
 
-                        <Button
-                            onClick={() => deleteSundayEntry(sunday.id)}
-                            disabled={isLoading}
-                            className="px-6 py-2 bg-linear-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 disabled:from-gray-500 disabled:to-gray-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-                        >
-                            Delete
-                        </Button>
-                    </div>
+                            <Button
+                                onClick={() => deleteSundayEntry(sunday.id)}
+                                disabled={isLoading}
+                                className="px-6 py-2 bg-linear-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 disabled:from-gray-500 disabled:to-gray-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                            >
+                                Delete
+                            </Button>
+                        </div>
+                    )}
 
                     {/* Add Song Section */}
-                    <div className="border-t border-blue-800/30 pt-6">
-                        <h3 className="text-lg font-bold text-blue-200 mb-4">
-                            Lied hinzufügen
-                        </h3>
-                        <div className="bg-slate-700 rounded-lg p-4 max-h-64 overflow-y-auto">
-                            {context.songs && context.songs.length > 0 ? (
-                                <div className="space-y-2">
-                                    {context.songs.map((song) => {
-                                        const alreadyAdded = sunday.items?.some(
-                                            (item) => item.id === song.id,
+                    {user && (
+                        <div className="border-t border-blue-800/30 pt-6">
+                            <h3 className="text-lg font-bold text-blue-200 mb-4">
+                                Lied hinzufügen
+                            </h3>
+                            <div className="mb-4">
+                                <input
+                                    type="text"
+                                    placeholder="Nach Lied suchen..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full px-4 py-2 bg-slate-600 text-gray-100 placeholder-gray-400 rounded-lg border border-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                                />
+                            </div>
+                            <div className="bg-slate-700 rounded-lg p-4 max-h-64 overflow-y-auto">
+                                {context.songs && context.songs.length > 0 ? (
+                                    (() => {
+                                        const filteredSongs = context.songs.filter(
+                                            (song) =>
+                                                song.title
+                                                    .toLowerCase()
+                                                    .includes(searchQuery.toLowerCase()),
                                         );
-                                        return (
-                                            <button
-                                                key={song.id}
-                                                onClick={() =>
-                                                    !alreadyAdded &&
-                                                    handleAddSong(song)
-                                                }
-                                                disabled={alreadyAdded}
-                                                className={`w-full text-left p-3 rounded transition-all ${
-                                                    alreadyAdded
-                                                        ? "bg-gray-600 text-gray-400 cursor-not-allowed opacity-50"
-                                                        : "bg-slate-600 hover:bg-blue-600 text-gray-100 hover:text-white"
-                                                }`}
-                                            >
-                                                <div className="font-semibold">
-                                                    {song.title}
-                                                </div>
-                                                <div className="text-xs opacity-75">
-                                                    {song.key || "Keine Tonart"}
-                                                </div>
-                                            </button>
+                                        return filteredSongs.length > 0 ? (
+                                            <div className="space-y-2">
+                                                {filteredSongs.map((song) => {
+                                                    const alreadyAdded =
+                                                        sunday.items?.some(
+                                                            (item) =>
+                                                                item.id === song.id,
+                                                        );
+                                                    return (
+                                                        <button
+                                                            key={song.id}
+                                                            onClick={() =>
+                                                                !alreadyAdded &&
+                                                                handleAddSong(song)
+                                                            }
+                                                            disabled={alreadyAdded}
+                                                            className={`w-full text-left p-3 rounded transition-all ${
+                                                                alreadyAdded
+                                                                    ? "bg-gray-600 text-gray-400 cursor-not-allowed opacity-50"
+                                                                    : "bg-slate-600 hover:bg-blue-600 text-gray-100 hover:text-white"
+                                                            }`}
+                                                        >
+                                                            <div className="font-semibold">
+                                                                {song.title}
+                                                            </div>
+                                                            <div className="text-xs opacity-75">
+                                                                {song.key ||
+                                                                    "Keine Tonart"}
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <p className="text-gray-400 text-center py-8">
+                                                Keine Lieder gefunden
+                                            </p>
                                         );
-                                    })}
-                                </div>
-                            ) : (
-                                <p className="text-gray-400 text-center py-8">
-                                    Keine Lieder verfügbar
-                                </p>
-                            )}
+                                    })()
+                                ) : (
+                                    <p className="text-gray-400 text-center py-8">
+                                        Keine Lieder verfügbar
+                                    </p>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             )}
         </>

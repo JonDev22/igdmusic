@@ -1,6 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 import type { Sunday } from "../../../interfaces/ISundays";
 import { Button } from "@headlessui/react";
+import useAuthContext from "../../../hooks/useAuthContext";
 
 interface SundaysListProps {
     sundays: Sunday[];
@@ -25,38 +26,44 @@ function SundaysList({
     onSelectSunday,
     openDialog,
 }: SundaysListProps) {
+    const { user } = useAuthContext();
+
     return (
         <div className="lg:col-span-1 bg-linear-to-br from-slate-800 to-slate-900 rounded-xl p-6 shadow-lg border border-blue-800/30 h-fit">
             <div className="flex justify-between pb-4 items-center">
                 <h2 className="text-2xl font-bold text-blue-200">
                     Gottesdienste
                 </h2>
-                <Button
-                    onClick={openDialog}
-                    className="px-6 py-2 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 disabled:from-gray-500 disabled:to-gray-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-                >
-                    Hinzufügen
-                </Button>
+                {user && (
+                    <Button
+                        onClick={openDialog}
+                        className="px-6 py-2 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 disabled:from-gray-500 disabled:to-gray-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                    >
+                        Hinzufügen
+                    </Button>
+                )}
             </div>
             <div className="space-y-2">
-                {sundays.map((sunday) => (
-                    <Button
-                        key={sunday.id}
-                        onClick={() => onSelectSunday(sunday.id)}
-                        className={`w-full text-left p-3 rounded-lg transition-all ${
-                            selectedSunday === sunday.id
-                                ? "bg-blue-600 text-white shadow-lg"
-                                : "bg-slate-700 text-gray-100 hover:bg-slate-600"
-                        }`}
-                    >
-                        <div className="font-semibold">
-                            {formatDate(sunday.date)}
-                        </div>
-                        <div className="text-sm opacity-75">
-                            {sunday.items ? sunday.items.length : 0} Lieder
-                        </div>
-                    </Button>
-                ))}
+                {sundays
+                    .sort((a, b) => a.date.seconds - b.date.seconds)
+                    .map((sunday) => (
+                        <Button
+                            key={sunday.id}
+                            onClick={() => onSelectSunday(sunday.id)}
+                            className={`w-full text-left p-3 rounded-lg transition-all ${
+                                selectedSunday === sunday.id
+                                    ? "bg-blue-600 text-white shadow-lg"
+                                    : "bg-slate-700 text-gray-100 hover:bg-slate-600"
+                            }`}
+                        >
+                            <div className="font-semibold">
+                                {formatDate(sunday.date)}
+                            </div>
+                            <div className="text-sm opacity-75">
+                                {sunday.items ? sunday.items.length : 0} Lieder
+                            </div>
+                        </Button>
+                    ))}
             </div>
         </div>
     );

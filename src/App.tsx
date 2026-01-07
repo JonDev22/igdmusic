@@ -7,7 +7,6 @@ import MusicPage from "./sites/music/MusicPage";
 import { Suspense, useState } from "react";
 import LoadingComponent from "./utils/LoadingComponent";
 import Home from "./sites/home/Home";
-import AuthComponents from "./utils/AuthComponents";
 // import ContactPage from "./sites/contact/ContactPage";
 import ValuesPage from "./sites/values/ValuesPage";
 import PlanningPage from "./sites/planning/PlanningPage";
@@ -25,19 +24,11 @@ function App() {
         },
         {
             name: "Musik",
-            component: (
-                <AuthComponents>
-                    <MusicPage />
-                </AuthComponents>
-            ),
+            component: <MusicPage />,
         },
         {
             name: "Planung",
-            component: (
-                <AuthComponents>
-                    <PlanningPage />
-                </AuthComponents>
-            ),
+            component: <PlanningPage />,
         },
         {
             name: "Werte",
