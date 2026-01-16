@@ -6,6 +6,7 @@ import { Button } from "@headlessui/react";
 import deleteSunday from "../function/deleteSunday";
 import updateSunday from "../function/updateSunday";
 import { useState, useEffect } from "react";
+import { availableKeys } from "../../../lib/availableKeys";
 
 interface SundayDetailsProps {
     sundays: Sunday[];
@@ -68,6 +69,18 @@ function SundayDetails({
         setHasChanges(itemsChanged);
     }, [sunday, sundays, selectedSunday]);
 
+    const handleKeyChange = (itemId: string, newKey: string) => {
+        if (!sunday || !sunday.items) return;
+
+        const updatedSunday = {
+            ...sunday,
+            items: sunday.items.map((item) =>
+                item.id === itemId ? { ...item, key: newKey } : item,
+            ),
+        };
+        setSunday(updatedSunday);
+    };
+
     const sortedItems = sunday
         ? [...(sunday.items ? sunday.items : [])].sort(
               (a, b) => a.order - b.order,
@@ -93,6 +106,7 @@ function SundayDetails({
             id: song.id,
             title: song.title,
             order: newOrder,
+            key: song.key || "",
         };
 
         updatedSunday.items.push(newItem);
@@ -145,14 +159,47 @@ function SundayDetails({
 
         setIsLoading(true);
         try {
-            await updateSunday(sunday);
-            context.updateSunday(sunday);
+            // Clean up empty keys before saving
+            const sundayToSave = { ...sunday };
+            if (sundayToSave.items) {
+                sundayToSave.items = sundayToSave.items.map((item) => ({
+                    ...item,
+                    key: item.key || "", // Keep empty string for unset keys
+                }));
+            }
+
+            await updateSunday(sundayToSave);
+            context.updateSunday(sundayToSave);
             setHasChanges(false);
         } catch (error) {
             console.error("Error updating sunday:", error);
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const getSelectedSong = (
+        songs: ISong[],
+        songTitle: string,
+    ): ISong | null => {
+        return songs.find((song) => song.title === songTitle) ?? null;
+    };
+
+    const createDefaultOption = (song: ISong | null) => {
+        if (song && song.key) {
+            return <option value={song.key || ""}>Default {song.key}</option>;
+        }
+        return null;
+    };
+
+    const getLastPlayed = (song: ISong): string => {
+        // Placeholder implementation
+        const selectedSunday = sundays.find((s) =>
+            s.items?.some((item) => item.id === song.id),
+        );
+        return (
+            selectedSunday?.date.toDate().toLocaleDateString("de-DE") || "N/A"
+        );
     };
 
     return (
@@ -184,21 +231,71 @@ function SundayDetails({
                             sortedItems.map((item, index) => (
                                 <div
                                     key={item.id}
-                                    className="bg-slate-700 rounded-lg p-4 flex items-center justify-between hover:bg-slate-650 transition-all"
+                                    className="bg-slate-700 rounded-lg p-4 flex flex-col md:flex-row lg:items-center lg:justify-between hover:bg-slate-650 transition-all"
                                 >
                                     <div className="flex items-center gap-4 flex-1">
                                         <div className="flex items-center gap-2">
                                             <span className="font-bold text-blue-300 min-w-8">
                                                 {item.order}.
                                             </span>
-                                            <span className="text-gray-100">
-                                                {item.title}
-                                            </span>
+                                            <div className="flex flex-col flex-1">
+                                                <span className="text-gray-100">
+                                                    {item.title}
+                                                </span>
+                                                <div className="flex items-center gap-2 mt-2">
+                                                    <span className="text-sm text-gray-400">
+                                                        Tonart:
+                                                    </span>
+                                                    {user && (
+                                                        <select
+                                                            value={
+                                                                item.key || ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                handleKeyChange(
+                                                                    item.id,
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            className="px-3 py-1 bg-slate-600 text-gray-100 border border-slate-500 rounded hover:bg-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                                                        >
+                                                            {createDefaultOption(
+                                                                getSelectedSong(
+                                                                    context.songs ||
+                                                                        [],
+                                                                    item.title,
+                                                                ),
+                                                            )}
+                                                            {availableKeys.map(
+                                                                (key) => (
+                                                                    <option
+                                                                        key={
+                                                                            key
+                                                                        }
+                                                                        value={
+                                                                            key
+                                                                        }
+                                                                    >
+                                                                        {key}
+                                                                    </option>
+                                                                ),
+                                                            )}
+                                                        </select>
+                                                    )}
+                                                    {!user && (
+                                                        <span className="text-sm text-gray-300">
+                                                            {item.key ||
+                                                                "Keine Tonart"}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     {user && (
-                                        <div className="flex gap-1">
+                                        <div className="flex gap-1 mt-3 md:mt-0">
                                             {index > 0 && (
                                                 <button
                                                     onClick={() =>
@@ -278,35 +375,47 @@ function SundayDetails({
                                     type="text"
                                     placeholder="Nach Lied suchen..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={(e) =>
+                                        setSearchQuery(e.target.value)
+                                    }
                                     className="w-full px-4 py-2 bg-slate-600 text-gray-100 placeholder-gray-400 rounded-lg border border-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                 />
                             </div>
                             <div className="bg-slate-700 rounded-lg p-4 max-h-64 overflow-y-auto">
                                 {context.songs && context.songs.length > 0 ? (
                                     (() => {
-                                        const filteredSongs = context.songs.filter(
-                                            (song) =>
+                                        const filteredSongs = context.songs
+                                            .filter((song) =>
                                                 song.title
                                                     .toLowerCase()
-                                                    .includes(searchQuery.toLowerCase()),
-                                        );
+                                                    .includes(
+                                                        searchQuery.toLowerCase(),
+                                                    ),
+                                            )
+                                            .sort((a, b) =>
+                                                a.title.localeCompare(b.title),
+                                            );
                                         return filteredSongs.length > 0 ? (
                                             <div className="space-y-2">
                                                 {filteredSongs.map((song) => {
                                                     const alreadyAdded =
                                                         sunday.items?.some(
                                                             (item) =>
-                                                                item.id === song.id,
+                                                                item.id ===
+                                                                song.id,
                                                         );
                                                     return (
                                                         <button
                                                             key={song.id}
                                                             onClick={() =>
                                                                 !alreadyAdded &&
-                                                                handleAddSong(song)
+                                                                handleAddSong(
+                                                                    song,
+                                                                )
                                                             }
-                                                            disabled={alreadyAdded}
+                                                            disabled={
+                                                                alreadyAdded
+                                                            }
                                                             className={`w-full text-left p-3 rounded transition-all ${
                                                                 alreadyAdded
                                                                     ? "bg-gray-600 text-gray-400 cursor-not-allowed opacity-50"
@@ -316,9 +425,18 @@ function SundayDetails({
                                                             <div className="font-semibold">
                                                                 {song.title}
                                                             </div>
-                                                            <div className="text-xs opacity-75">
-                                                                {song.key ||
-                                                                    "Keine Tonart"}
+                                                            <div className="flex justify-between items-center">
+                                                                <div className="text-xs opacity-75">
+                                                                    {song.key ||
+                                                                        "Keine Tonart"}
+                                                                </div>
+                                                                <div className="text-xs opacity-75">
+                                                                    Zuletzt
+                                                                    gespielt:
+                                                                    {getLastPlayed(
+                                                                        song,
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </button>
                                                     );
