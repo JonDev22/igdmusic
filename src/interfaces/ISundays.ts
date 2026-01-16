@@ -7,5 +7,6 @@ export interface Sunday {
         order: number;
         id: string;
         title: string;
+        key: string;
     }[];
 }
