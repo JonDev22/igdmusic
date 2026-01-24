@@ -1,6 +1,5 @@
 import { availableKeys } from "../../../lib/availableKeys";
 import type { ISong } from "../../../interfaces/ISong";
-import { ChevronDownIcon } from "@heroicons/react/24/solid";
 
 interface SundayDetailsSongsListProps {
     sortedItems: Array<{
@@ -22,8 +21,6 @@ function SundayDetailsSongsList({
     sortedItems,
     songs,
     user,
-    isOpen,
-    onToggle,
     onKeyChange,
     onRemoveSong,
     onReorderSongs,
