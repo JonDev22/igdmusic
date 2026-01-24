@@ -11,6 +11,7 @@ import Home from "./sites/home/Home";
 import ValuesPage from "./sites/values/ValuesPage";
 import PlanningPage from "./sites/planning/PlanningPage";
 import { TabGroup, TabPanel, TabPanels } from "@headlessui/react";
+import Team from "./sites/team/Team";
 
 function App() {
     const [selectedPanel, setSelectedPanel] = useState<number>(0);
@@ -29,6 +30,10 @@ function App() {
         {
             name: "Planung",
             component: <PlanningPage />,
+        },
+        {
+            name: "Team",
+            component: <Team />,
         },
         {
             name: "Werte",

@@ -12,6 +12,7 @@ import type { ReactNode } from "react";
 import type { IUser } from "../interfaces/IUser";
 import type { ISong } from "../interfaces/ISong";
 import type { Sunday } from "../interfaces/ISundays";
+import type { IMusician } from "../interfaces/IMusician";
 import { onAuthStateChanged, type User } from "firebase/auth";
 
 import { AuthContext } from "./AuthContext";
@@ -56,11 +57,27 @@ function AuthProvider({ children }: AuthProviderProps) {
                     }
                 },
             },
+            {
+                queryKey: ["musicians"],
+                queryFn: async () => {
+                    try {
+                        const musiciansCollection = collection(db, "musicians");
+                        const snapshot = await getDocs(musiciansCollection);
+                        return snapshot.docs.map((doc) => ({
+                            id: doc.id,
+                            ...doc.data(),
+                        })) as IMusician[];
+                    } catch {
+                        return [];
+                    }
+                },
+            },
         ],
     });
 
     const songs = result[0].data ?? [];
     const sundays = result[1].data ?? [];
+    const musicians = result[2].data ?? [];
 
     const addSong = (song: ISong) => {
         queryClient.setQueryData<ISong[]>(["songs"], (old = []) => [
@@ -128,6 +145,25 @@ function AuthProvider({ children }: AuthProviderProps) {
         return () => unsubscribe();
     }, [fetchUser, queryClient]);
 
+    const addMusician = (musician: IMusician) => {
+        queryClient.setQueryData<IMusician[]>(["musicians"], (old = []) => [
+            ...old,
+            musician,
+        ]);
+    };
+
+    const updateMusician = (updatedMusician: IMusician) => {
+        queryClient.setQueryData<IMusician[]>(["musicians"], (old = []) =>
+            old.map((m) => (m.id === updatedMusician.id ? updatedMusician : m)),
+        );
+    };
+
+    const removeMusician = (musicianId: string) => {
+        queryClient.setQueryData<IMusician[]>(["musicians"], (old = []) =>
+            old.filter((m) => m.id !== musicianId),
+        );
+    };
+
     const authProviderValues = {
         user,
         songs,
@@ -138,6 +174,10 @@ function AuthProvider({ children }: AuthProviderProps) {
         addSunday,
         updateSunday,
         deleteSunday,
+        musicians,
+        addMusician,
+        updateMusician,
+        removeMusician,
     };
 
     return (

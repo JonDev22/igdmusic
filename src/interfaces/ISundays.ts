@@ -9,4 +9,5 @@ export interface Sunday {
         title: string;
         key: string;
     }[];
+    musicians?: string[];
 }

@@ -7,6 +7,7 @@ async function updateSunday(sunday: Sunday): Promise<void> {
     await updateDoc(sundayRef, {
         date: sunday.date,
         items: sunday.items,
+        musicians: sunday.musicians || [],
     });
 }
 

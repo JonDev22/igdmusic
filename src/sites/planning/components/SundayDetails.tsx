@@ -6,7 +6,9 @@ import { Button } from "@headlessui/react";
 import deleteSunday from "../function/deleteSunday";
 import updateSunday from "../function/updateSunday";
 import { useState, useEffect } from "react";
-import { availableKeys } from "../../../lib/availableKeys";
+import SundayDetailsSongsList from "./SundayDetailsSongsList";
+import SundayDetailsAddSongs from "./SundayDetailsAddSongs";
+import SundayDetailsMusicians from "./SundayDetailsMusicians";
 
 interface SundayDetailsProps {
     sundays: Sunday[];
@@ -40,6 +42,8 @@ function SundayDetails({
     const [isLoading, setIsLoading] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [showSongs, setShowSongs] = useState(false);
+    const [showMusicians, setShowMusicians] = useState(false);
 
     // Update sunday state when selectedSunday changes
     useEffect(() => {
@@ -49,6 +53,7 @@ function SundayDetails({
             setSunday({
                 ...selected,
                 items: selected.items ? [...selected.items] : [],
+                musicians: selected.musicians ? [...selected.musicians] : [],
             });
             setHasChanges(false);
         }
@@ -66,7 +71,12 @@ function SundayDetails({
             JSON.stringify(sunday.items) !==
             JSON.stringify(originalSunday.items);
 
-        setHasChanges(itemsChanged);
+        // Compare musicians arrays
+        const musiciansChanged =
+            JSON.stringify(sunday.musicians || []) !==
+            JSON.stringify(originalSunday.musicians || []);
+
+        setHasChanges(itemsChanged || musiciansChanged);
     }, [sunday, sundays, selectedSunday]);
 
     const handleKeyChange = (itemId: string, newKey: string) => {
@@ -154,6 +164,33 @@ function SundayDetails({
         setSunday(updatedSunday);
     };
 
+    const handleAddMusician = (musicianId: string) => {
+        if (!sunday) return;
+
+        const updatedSunday = { ...sunday };
+        if (!updatedSunday.musicians) {
+            updatedSunday.musicians = [];
+        }
+
+        if (!updatedSunday.musicians.includes(musicianId)) {
+            updatedSunday.musicians.push(musicianId);
+            setSunday(updatedSunday);
+        }
+    };
+
+    const handleRemoveMusician = (musicianId: string) => {
+        if (!sunday || !sunday.musicians) return;
+
+        const updatedSunday = { ...sunday };
+        if (!updatedSunday.musicians) return;
+
+        const musicianIndex = updatedSunday.musicians.indexOf(musicianId);
+        if (musicianIndex > -1) {
+            updatedSunday.musicians.splice(musicianIndex, 1);
+            setSunday(updatedSunday);
+        }
+    };
+
     const handleUpdate = async () => {
         if (!sunday) return;
 
@@ -185,22 +222,8 @@ function SundayDetails({
         return songs.find((song) => song.title === songTitle) ?? null;
     };
 
-    const createDefaultOption = (song: ISong | null) => {
-        if (song && song.key) {
-            return <option value={song.key || ""}>Default {song.key}</option>;
-        }
-        return null;
-    };
-
-    const getLastPlayed = (song: ISong): string => {
-        // Placeholder implementation
-        const selectedSunday = sundays.find((s) =>
-            s.items?.some((item) => item.id === song.id),
-        );
-        return (
-            selectedSunday?.date.toDate().toLocaleDateString("de-DE") || "N/A"
-        );
-    };
+    // This function is kept for reference but may be used in future enhancements
+    void getSelectedSong;
 
     return (
         <>
@@ -222,125 +245,18 @@ function SundayDetails({
                     </div>
 
                     {/* Songs List */}
-                    <div className="space-y-2 mb-6">
-                        {sortedItems.length === 0 ? (
-                            <p className="text-gray-400 text-center py-8">
-                                Noch keine Lieder hinzugefügt
-                            </p>
-                        ) : (
-                            sortedItems.map((item, index) => (
-                                <div
-                                    key={item.id}
-                                    className="bg-slate-700 rounded-lg p-4 flex flex-col md:flex-row lg:items-center lg:justify-between hover:bg-slate-650 transition-all"
-                                >
-                                    <div className="flex items-center gap-4 flex-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-bold text-blue-300 min-w-8">
-                                                {item.order}.
-                                            </span>
-                                            <div className="flex flex-col flex-1">
-                                                <span className="text-gray-100">
-                                                    {item.title}
-                                                </span>
-                                                <div className="flex items-center gap-2 mt-2">
-                                                    <span className="text-sm text-gray-400">
-                                                        Tonart:
-                                                    </span>
-                                                    {user && (
-                                                        <select
-                                                            value={
-                                                                item.key || ""
-                                                            }
-                                                            onChange={(e) =>
-                                                                handleKeyChange(
-                                                                    item.id,
-                                                                    e.target
-                                                                        .value,
-                                                                )
-                                                            }
-                                                            className="px-3 py-1 bg-slate-600 text-gray-100 border border-slate-500 rounded hover:bg-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                                                        >
-                                                            {createDefaultOption(
-                                                                getSelectedSong(
-                                                                    context.songs ||
-                                                                        [],
-                                                                    item.title,
-                                                                ),
-                                                            )}
-                                                            {availableKeys.map(
-                                                                (key) => (
-                                                                    <option
-                                                                        key={
-                                                                            key
-                                                                        }
-                                                                        value={
-                                                                            key
-                                                                        }
-                                                                    >
-                                                                        {key}
-                                                                    </option>
-                                                                ),
-                                                            )}
-                                                        </select>
-                                                    )}
-                                                    {!user && (
-                                                        <span className="text-sm text-gray-300">
-                                                            {item.key ||
-                                                                "Keine Tonart"}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <SundayDetailsSongsList
+                        sortedItems={sortedItems}
+                        songs={context.songs || []}
+                        user={user}
+                        isOpen={showSongs}
+                        onToggle={() => setShowSongs(!showSongs)}
+                        onKeyChange={handleKeyChange}
+                        onRemoveSong={handleRemoveSong}
+                        onReorderSongs={handleReorderSongs}
+                    />
 
-                                    {user && (
-                                        <div className="flex gap-1 mt-3 md:mt-0">
-                                            {index > 0 && (
-                                                <button
-                                                    onClick={() =>
-                                                        handleReorderSongs(
-                                                            index,
-                                                            index - 1,
-                                                        )
-                                                    }
-                                                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all"
-                                                    title="Nach oben"
-                                                >
-                                                    ↑
-                                                </button>
-                                            )}
-                                            {index < sortedItems.length - 1 && (
-                                                <button
-                                                    onClick={() =>
-                                                        handleReorderSongs(
-                                                            index,
-                                                            index + 1,
-                                                        )
-                                                    }
-                                                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all"
-                                                    title="Nach unten"
-                                                >
-                                                    ↓
-                                                </button>
-                                            )}
-                                            <button
-                                                onClick={() =>
-                                                    handleRemoveSong(item.id)
-                                                }
-                                                className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-all"
-                                                title="Entfernen"
-                                            >
-                                                ✕
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            ))
-                        )}
-                    </div>
-
-                    {user && (
+                    {user?.admin && (
                         <div className="flex justify-end gap-2 pb-4">
                             <Button
                                 onClick={handleUpdate}
@@ -365,97 +281,28 @@ function SundayDetails({
                     )}
 
                     {/* Add Song Section */}
-                    {user && (
-                        <div className="border-t border-blue-800/30 pt-6">
-                            <h3 className="text-lg font-bold text-blue-200 mb-4">
-                                Lied hinzufügen
-                            </h3>
-                            <div className="mb-4">
-                                <input
-                                    type="text"
-                                    placeholder="Nach Lied suchen..."
-                                    value={searchQuery}
-                                    onChange={(e) =>
-                                        setSearchQuery(e.target.value)
-                                    }
-                                    className="w-full px-4 py-2 bg-slate-600 text-gray-100 placeholder-gray-400 rounded-lg border border-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                                />
-                            </div>
-                            <div className="bg-slate-700 rounded-lg p-4 max-h-64 overflow-y-auto">
-                                {context.songs && context.songs.length > 0 ? (
-                                    (() => {
-                                        const filteredSongs = context.songs
-                                            .filter((song) =>
-                                                song.title
-                                                    .toLowerCase()
-                                                    .includes(
-                                                        searchQuery.toLowerCase(),
-                                                    ),
-                                            )
-                                            .sort((a, b) =>
-                                                a.title.localeCompare(b.title),
-                                            );
-                                        return filteredSongs.length > 0 ? (
-                                            <div className="space-y-2">
-                                                {filteredSongs.map((song) => {
-                                                    const alreadyAdded =
-                                                        sunday.items?.some(
-                                                            (item) =>
-                                                                item.id ===
-                                                                song.id,
-                                                        );
-                                                    return (
-                                                        <button
-                                                            key={song.id}
-                                                            onClick={() =>
-                                                                !alreadyAdded &&
-                                                                handleAddSong(
-                                                                    song,
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                alreadyAdded
-                                                            }
-                                                            className={`w-full text-left p-3 rounded transition-all ${
-                                                                alreadyAdded
-                                                                    ? "bg-gray-600 text-gray-400 cursor-not-allowed opacity-50"
-                                                                    : "bg-slate-600 hover:bg-blue-600 text-gray-100 hover:text-white"
-                                                            }`}
-                                                        >
-                                                            <div className="font-semibold">
-                                                                {song.title}
-                                                            </div>
-                                                            <div className="flex justify-between items-center">
-                                                                <div className="text-xs opacity-75">
-                                                                    {song.key ||
-                                                                        "Keine Tonart"}
-                                                                </div>
-                                                                <div className="text-xs opacity-75">
-                                                                    Zuletzt
-                                                                    gespielt:
-                                                                    {getLastPlayed(
-                                                                        song,
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        ) : (
-                                            <p className="text-gray-400 text-center py-8">
-                                                Keine Lieder gefunden
-                                            </p>
-                                        );
-                                    })()
-                                ) : (
-                                    <p className="text-gray-400 text-center py-8">
-                                        Keine Lieder verfügbar
-                                    </p>
-                                )}
-                            </div>
-                        </div>
+                    {user?.admin && (
+                        <SundayDetailsAddSongs
+                            songs={context.songs || []}
+                            sunday={sunday}
+                            searchQuery={searchQuery}
+                            isOpen={showSongs}
+                            onSearchChange={setSearchQuery}
+                            onToggle={() => setShowSongs(!showSongs)}
+                            onAddSong={handleAddSong}
+                        />
                     )}
+
+                    {/* Musicians Sections */}
+                    <SundayDetailsMusicians
+                        sunday={sunday}
+                        musicians={context.musicians || []}
+                        user={user}
+                        isOpen={showMusicians}
+                        onToggle={() => setShowMusicians(!showMusicians)}
+                        onAddMusician={handleAddMusician}
+                        onRemoveMusician={handleRemoveMusician}
+                    />
                 </div>
             )}
         </>
