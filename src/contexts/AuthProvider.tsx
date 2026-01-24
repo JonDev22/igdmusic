@@ -16,6 +16,7 @@ import type { IMusician } from "../interfaces/IMusician";
 import { onAuthStateChanged, type User } from "firebase/auth";
 
 import { AuthContext } from "./AuthContext";
+import type { IValuesContent } from "../interfaces/IValuesContent";
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -72,12 +73,28 @@ function AuthProvider({ children }: AuthProviderProps) {
                     }
                 },
             },
+            {
+                queryKey: ["values"],
+                queryFn: async () => {
+                    try {
+                        const valuesCollection = collection(db, "values");
+                        const snapshot = await getDocs(valuesCollection);
+                        return snapshot.docs.map((doc) => ({
+                            id: doc.id,
+                            ...doc.data(),
+                        })) as IValuesContent[];
+                    } catch {
+                        return [];
+                    }
+                },
+            },
         ],
     });
 
     const songs = result[0].data ?? [];
     const sundays = result[1].data ?? [];
     const musicians = result[2].data ?? [];
+    const values = result[3].data ?? [];
 
     const addSong = (song: ISong) => {
         queryClient.setQueryData<ISong[]>(["songs"], (old = []) => [
@@ -178,6 +195,7 @@ function AuthProvider({ children }: AuthProviderProps) {
         addMusician,
         updateMusician,
         removeMusician,
+        values,
     };
 
     return (

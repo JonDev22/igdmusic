@@ -4,6 +4,7 @@ import type { IUser } from "../interfaces/IUser";
 import type { ISong } from "../interfaces/ISong";
 import type { Sunday } from "../interfaces/ISundays";
 import type { IMusician } from "../interfaces/IMusician";
+import type { IValuesContent } from "../interfaces/IValuesContent";
 
 export interface AuthContextType {
     user: IUser | null;
@@ -21,6 +22,8 @@ export interface AuthContextType {
     addMusician: (musician: IMusician) => void;
     updateMusician: (musician: IMusician) => void;
     removeMusician: (musicianId: string) => void;
+
+    values: IValuesContent[];
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
