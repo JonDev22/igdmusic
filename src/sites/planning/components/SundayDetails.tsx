@@ -247,7 +247,6 @@ function SundayDetails({
                     {/* Songs List */}
                     <SundayDetailsSongsList
                         sortedItems={sortedItems}
-                        songs={context.songs || []}
                         user={user}
                         isOpen={showSongs}
                         onToggle={() => setShowSongs(!showSongs)}
@@ -257,7 +256,7 @@ function SundayDetails({
                     />
 
                     {user?.admin && (
-                        <div className="flex justify-end gap-2 pb-4">
+                        <div className="flex justify-end gap-2 py-4">
                             <Button
                                 onClick={handleUpdate}
                                 disabled={!hasChanges || isLoading}

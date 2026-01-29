@@ -1,5 +1,12 @@
 import { availableKeys } from "../../../lib/availableKeys";
-import type { ISong } from "../../../interfaces/ISong";
+import type { IUser } from "../../../interfaces/IUser";
+import {
+    TrashIcon,
+    PaperClipIcon,
+    LinkIcon,
+} from "@heroicons/react/24/outline";
+import { useState } from "react";
+import useAuthContext from "../../../hooks/useAuthContext";
 
 interface SundayDetailsSongsListProps {
     sortedItems: Array<{
@@ -8,8 +15,7 @@ interface SundayDetailsSongsListProps {
         title: string;
         key: string;
     }>;
-    songs: ISong[];
-    user: any;
+    user: IUser | null;
     isOpen: boolean;
     onToggle: () => void;
     onKeyChange: (itemId: string, newKey: string) => void;
@@ -19,22 +25,13 @@ interface SundayDetailsSongsListProps {
 
 function SundayDetailsSongsList({
     sortedItems,
-    songs,
     user,
     onKeyChange,
     onRemoveSong,
     onReorderSongs,
 }: SundayDetailsSongsListProps) {
-    const getSelectedSong = (songTitle: string): ISong | null => {
-        return songs.find((song) => song.title === songTitle) ?? null;
-    };
-
-    const createDefaultOption = (song: ISong | null) => {
-        if (song && song.key) {
-            return <option value={song.key || ""}>Default {song.key}</option>;
-        }
-        return null;
-    };
+    const [isEdit, setIsEdit] = useState<boolean>(false);
+    const { songs } = useAuthContext();
 
     return (
         <div className="border-t border-blue-800/30 pt-6">
@@ -62,45 +59,102 @@ function SundayDetailsSongsList({
                                             <span className="text-sm text-gray-400">
                                                 Tonart:
                                             </span>
-                                            {user && (
-                                                <select
-                                                    value={item.key || ""}
-                                                    onChange={(e) =>
-                                                        onKeyChange(
-                                                            item.id,
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    className="px-3 py-1 bg-slate-600 text-gray-100 border border-slate-500 rounded hover:bg-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                                                >
-                                                    {createDefaultOption(
-                                                        getSelectedSong(
-                                                            item.title,
-                                                        ),
+                                            {user?.admin && (
+                                                <>
+                                                    {isEdit ? (
+                                                        <select
+                                                            value={
+                                                                item.key || ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                onKeyChange(
+                                                                    item.id,
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            defaultValue={
+                                                                item.key
+                                                            }
+                                                            className="px-3 py-1 bg-slate-600 text-gray-100 border border-slate-500 rounded hover:bg-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                                                        >
+                                                            {availableKeys.map(
+                                                                (key) => (
+                                                                    <option
+                                                                        key={
+                                                                            key
+                                                                        }
+                                                                        value={
+                                                                            key
+                                                                        }
+                                                                    >
+                                                                        {key}
+                                                                    </option>
+                                                                ),
+                                                            )}
+                                                        </select>
+                                                    ) : (
+                                                        <span className="text-sm text-gray-300">
+                                                            {item.key ||
+                                                                "Keine Tonart"}
+                                                        </span>
                                                     )}
-                                                    {availableKeys.map(
-                                                        (key) => (
-                                                            <option
-                                                                key={key}
-                                                                value={key}
-                                                            >
-                                                                {key}
-                                                            </option>
-                                                        ),
-                                                    )}
-                                                </select>
+                                                </>
                                             )}
-                                            {!user && (
+                                            {!user?.admin && (
                                                 <span className="text-sm text-gray-300">
                                                     {item.key || "Keine Tonart"}
                                                 </span>
                                             )}
+                                            <p className="text-sm text-gray-300">
+                                                |
+                                            </p>
+                                        </div>
+                                        <div className="flex gap-2 pt-2">
+                                            <div
+                                                className="rounded-xl bg-red-500 p-2 flex items-center gap-2 text-white hover:cursor-pointer hover:bg-red-300"
+                                                onClick={() =>
+                                                    window.open(
+                                                        songs.find(
+                                                            (song) =>
+                                                                song.id ===
+                                                                item.id,
+                                                        )?.youTubeLink ||
+                                                            item.id,
+                                                        "_blank",
+                                                    )
+                                                }
+                                            >
+                                                <LinkIcon className="w-2 h-2" />
+                                                <p className="text-sm">
+                                                    YouTube
+                                                </p>
+                                            </div>
+                                            <div
+                                                className="rounded-xl bg-blue-500 p-2 flex items-center gap-2 text-white hover:cursor-pointer hover:bg-blue-300"
+                                                onClick={() =>
+                                                    window.open(
+                                                        songs.find(
+                                                            (song) =>
+                                                                song.id ===
+                                                                item.id,
+                                                        )?.songSelectLink ||
+                                                            item.id,
+                                                        "_blank",
+                                                    )
+                                                }
+                                            >
+                                                <LinkIcon className="w-2 h-2" />
+                                                <p className="text-sm">
+                                                    SongSelect
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {user && (
+                            {user?.admin && (
                                 <div className="flex gap-1 mt-3 md:mt-0">
                                     {index > 0 && (
                                         <button
@@ -126,10 +180,19 @@ function SundayDetailsSongsList({
                                     )}
                                     <button
                                         onClick={() => onRemoveSong(item.id)}
-                                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-all"
+                                        className="bg-red-600
+                                        hover:bg-red-700 text-red-700 rounded
+                                        transition-all"
                                         title="Entfernen"
                                     >
-                                        ✕
+                                        <TrashIcon className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => setIsEdit(!isEdit)}
+                                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-all"
+                                        title="Edit"
+                                    >
+                                        <PaperClipIcon className="w-4 h-4" />
                                     </button>
                                 </div>
                             )}

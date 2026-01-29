@@ -60,7 +60,11 @@ function MusicPage() {
     });
 
     const filterSongs = (songs: ISong[], filter: SongFilterProps): ISong[] => {
-        return songs.filter((song) => song.title.includes(filter.name));
+        return songs.filter((song) =>
+            song.title
+                .toLocaleLowerCase()
+                .includes(filter.name.toLocaleLowerCase()),
+        );
     };
 
     const [musicState, dispatch] = useReducer(musicReducer, {
