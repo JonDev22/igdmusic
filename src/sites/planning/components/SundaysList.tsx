@@ -61,8 +61,12 @@ function SundaysList({
                     <div className="font-semibold">
                         {formatDate(sunday.date)}
                     </div>
-                    <div className="text-sm opacity-75">
-                        {sunday.items ? sunday.items.length : 0} Lieder
+                    <div className="text-sm opacity-75 flex gap-6">
+                        <p>{sunday.items ? sunday.items.length : 0} Lieder</p>
+                        <p>
+                            {sunday.items ? sunday.musicians?.length : 0}{" "}
+                            Musiker
+                        </p>
                     </div>
                 </div>
             ));

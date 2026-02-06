@@ -1,11 +1,11 @@
 import { Timestamp } from "firebase/firestore";
 import type { ISong } from "../../../interfaces/ISong";
 import useAuthContext from "../../../hooks/useAuthContext";
-import type { Sunday } from "../../../interfaces/ISundays";
+import type { Sunday, SundaySong } from "../../../interfaces/ISundays";
 import { Button } from "@headlessui/react";
 import deleteSunday from "../function/deleteSunday";
 import updateSunday from "../function/updateSunday";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import SundayDetailsSongsList from "./SundayDetailsSongsList";
 import SundayDetailsAddSongs from "./SundayDetailsAddSongs";
 import SundayDetailsMusicians from "./SundayDetailsMusicians";
@@ -37,7 +37,7 @@ function SundayDetails({
     clearSundaySelection,
 }: SundayDetailsProps) {
     const context = useAuthContext();
-    const { user } = useAuthContext();
+    const { user, songs } = useAuthContext();
     const [sunday, setSunday] = useState<Sunday | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
@@ -91,10 +91,11 @@ function SundayDetails({
         setSunday(updatedSunday);
     };
 
-    const sortedItems = sunday
-        ? [...(sunday.items ? sunday.items : [])].sort(
-              (a, b) => a.order - b.order,
-          )
+    const sortedItems: ISong[] = sunday?.items
+        ? sunday.items
+              .sort((a, b) => a.order - b.order)
+              .map((item) => songs.find((s) => s.id === item.id))
+              .filter((item) => item !== undefined)
         : [];
 
     const deleteSundayEntry = async (id: string) => {
@@ -215,15 +216,33 @@ function SundayDetails({
         }
     };
 
-    const getSelectedSong = (
-        songs: ISong[],
-        songTitle: string,
-    ): ISong | null => {
-        return songs.find((song) => song.title === songTitle) ?? null;
-    };
+    const handleGetLastPlayed = useCallback((item: ISong): string => {
+        let lastPlayed = "N/A";
+        let prevItem: ISong | null = null;
 
-    // This function is kept for reference but may be used in future enhancements
-    void getSelectedSong;
+        sundays.forEach((sun: Sunday) => {
+            sun.items
+                ?.map((it: SundaySong) => songs.find((s) => s.id === it.id))
+                .filter((it: ISong | undefined) => it !== undefined)
+                .find((it: ISong) => {
+                    if (it.id === item.id) {
+                        if (!prevItem) {
+                            prevItem = it;
+                            lastPlayed = sun.date.toDate().toLocaleDateString();
+                        } else {
+                            if (prevItem.createdAt < it.createdAt) {
+                                prevItem = it;
+                                lastPlayed = sun.date
+                                    .toDate()
+                                    .toLocaleDateString();
+                            }
+                        }
+                    }
+                });
+        });
+
+        return lastPlayed;
+    }, []);
 
     return (
         <>
@@ -289,6 +308,7 @@ function SundayDetails({
                             onSearchChange={setSearchQuery}
                             onToggle={() => setShowSongs(!showSongs)}
                             onAddSong={handleAddSong}
+                            handleGetLastPlayed={handleGetLastPlayed}
                         />
                     )}
 

@@ -10,6 +10,7 @@ interface SundayDetailsAddSongsProps {
     onSearchChange: (query: string) => void;
     onToggle: () => void;
     onAddSong: (song: ISong) => void;
+    handleGetLastPlayed: (item: ISong) => string;
 }
 
 function SundayDetailsAddSongs({
@@ -20,6 +21,7 @@ function SundayDetailsAddSongs({
     onSearchChange,
     onToggle,
     onAddSong,
+    handleGetLastPlayed,
 }: SundayDetailsAddSongsProps) {
     return (
         <div className="border-t border-blue-800/30 pt-6">
@@ -95,7 +97,9 @@ function SundayDetailsAddSongs({
                                                         </div>
                                                         <div className="text-xs opacity-75">
                                                             Zuletzt gespielt:
-                                                            N/A
+                                                            {handleGetLastPlayed(
+                                                                song,
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </button>
