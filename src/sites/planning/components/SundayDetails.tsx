@@ -82,10 +82,20 @@ function SundayDetails({
     const handleKeyChange = (itemId: string, newKey: string) => {
         if (!sunday || !sunday.items) return;
 
+        const sundayItemsToChange = sunday.items.find(
+            (item) => item.id === itemId,
+        );
+
+        if (!sundayItemsToChange || sundayItemsToChange.key === newKey) return;
+
+        sundayItemsToChange.key = newKey;
+
         const updatedSunday = {
             ...sunday,
             items: sunday.items.map((item) =>
-                item.id === itemId ? { ...item, key: newKey } : item,
+                item.id === sundayItemsToChange?.id
+                    ? sundayItemsToChange
+                    : item,
             ),
         };
         setSunday(updatedSunday);
@@ -267,8 +277,6 @@ function SundayDetails({
                     <SundayDetailsSongsList
                         sortedItems={sortedItems}
                         user={user}
-                        isOpen={showSongs}
-                        onToggle={() => setShowSongs(!showSongs)}
                         onKeyChange={handleKeyChange}
                         onRemoveSong={handleRemoveSong}
                         onReorderSongs={handleReorderSongs}

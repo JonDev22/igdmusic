@@ -24,7 +24,7 @@ function Navbar({ tabs }: NavbarProps) {
 
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth < 768); // md breakpoint is 768px
+            setIsMobile(window.innerWidth < 768);
         };
 
         checkMobile();
@@ -33,18 +33,20 @@ function Navbar({ tabs }: NavbarProps) {
     }, []);
 
     return (
-        <Disclosure as="nav" className="bg-white">
+        /* Changed bg-red to bg-transparent and made it absolute/fixed if you want it to overlay the image */
+        <Disclosure as="nav" className="bg-transparent absolute w-full z-20">
             {({ open }) => (
                 <>
                     <div className="mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex h-16 justify-between items-center">
-                            {/* Logo on the right */}
+                            {/* Logo section */}
                             <div className="shrink-0 flex gap-2 items-center">
-                                <MusicalNoteIcon className="w-10 h-10 font-bold text-white bg-linear-120 from-blue-900 to-blue-400 p-2 rounded-xl" />
-                                <p className="text-black font-bold text-xl">
+                                <MusicalNoteIcon className="w-10 h-10 font-bold text-white bg-gradient-to-br from-blue-900 to-blue-400 p-2 rounded-xl" />
+                                {/* Changed text-black to text-white */}
+                                <p className="text-white font-bold text-xl">
                                     IGDuisburg
                                 </p>
-                                <img src={Icon} className="w-10 h-10 -ms-3"/>
+                                <img src={Icon} className="w-10 h-10 -ms-3" />
                             </div>
 
                             {/* Desktop navigation */}
@@ -54,7 +56,8 @@ function Navbar({ tabs }: NavbarProps) {
                                         <Tab as={Fragment} key={item.name}>
                                             {({ hover, selected }) => (
                                                 <p
-                                                    className={`px-4 py-2 rounded-lg bg-blue-600 text-white ${hover && "hover:bg-blue-700 hover:cursor-pointer"} ${selected && "bg-blue-900"}`}
+                                                    /* Removed bg-blue-600, kept text-white, added transparent bg for hover */
+                                                    className={`px-4 py-2 rounded-lg text-white transition-colors ${hover ? "bg-white/20 cursor-pointer" : ""} ${selected ? "bg-white/40" : "bg-transparent"}`}
                                                 >
                                                     {item.name}
                                                 </p>
@@ -63,8 +66,9 @@ function Navbar({ tabs }: NavbarProps) {
                                     ))}
                                     <Tab as={Fragment}>
                                         {({ hover, selected }) => (
+                                            /* Changed text-black to text-white */
                                             <UserCircleIcon
-                                                className={`rounded-lg text-black ${hover && "hover:text-gray-500 hover:cursor-pointer"} ${selected && "text-gray-500"} h-10 w-10`}
+                                                className={`rounded-lg text-white transition-colors ${hover ? "text-gray-300 cursor-pointer" : ""} ${selected ? "text-gray-300" : ""} h-10 w-10`}
                                             />
                                         )}
                                     </Tab>
@@ -73,7 +77,7 @@ function Navbar({ tabs }: NavbarProps) {
 
                             {/* Mobile menu button */}
                             <div className="md:hidden flex items-center">
-                                <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
+                                <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2 text-white hover:bg-white/10 focus:outline-none">
                                     {open ? (
                                         <XMarkIcon
                                             className="block h-6 w-6"
@@ -100,14 +104,15 @@ function Navbar({ tabs }: NavbarProps) {
                         leaveFrom="transform opacity-100 scale-100"
                         leaveTo="transform opacity-0 scale-95"
                     >
-                        <DisclosurePanel className="md:hidden">
+                        {/* Added a semi-transparent dark background for mobile readability */}
+                        <DisclosurePanel className="md:hidden bg-black/50 backdrop-blur-md">
                             {isMobile && (
                                 <TabList className="space-y-1 px-2 pt-2 pb-3">
                                     {tabs.map((item) => (
                                         <Tab key={item.name} as={Fragment}>
                                             {({ hover, selected }) => (
                                                 <p
-                                                    className={`px-4 py-2 rounded-lg bg-blue-600 text-white ${hover && "hover:bg-blue-700 hover:cursor-pointer"} ${selected && "bg-blue-900"}`}
+                                                    className={`px-4 py-2 rounded-lg text-white ${hover ? "bg-white/20 cursor-pointer" : ""} ${selected ? "bg-white/40" : ""}`}
                                                 >
                                                     {item.name}
                                                 </p>
@@ -117,7 +122,7 @@ function Navbar({ tabs }: NavbarProps) {
                                     <Tab as={Fragment}>
                                         {({ hover, selected }) => (
                                             <UserCircleIcon
-                                                className={`rounded-lg text-black ${hover && "hover:text-gray-500 hover:cursor-pointer"} ${selected && "text-gray-500"} h-10 w-10`}
+                                                className={`rounded-lg text-white p-2 ${hover ? "text-gray-300 cursor-pointer" : ""} ${selected ? "text-gray-300" : ""} h-12 w-12`}
                                             />
                                         )}
                                     </Tab>

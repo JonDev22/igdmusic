@@ -1,9 +1,9 @@
 import { useState } from "react";
 import useAuthContext from "../../hooks/useAuthContext";
-// import type { Sunday } from "../../interfaces/ISundays";
 import SundaysList from "./components/SundaysList";
 import SundayDetails from "./components/SundayDetails";
 import CreateEditSunday from "./components/CreateEditSunday";
+import HeaderComponent from "../../utils/HeaderComponent";
 
 function PlanningPage() {
     const context = useAuthContext();
@@ -18,11 +18,7 @@ function PlanningPage() {
                 onClose={() => setIsOpen(false)}
             />
 
-            <div className="bg-blue-950 py-12 flex gap-4 items-center mx-auto justify-center">
-                <h1 className="text-white text-center text-4xl font-bold">
-                    Planung
-                </h1>
-            </div>
+            <HeaderComponent image="planning" header="Planung" />
 
             <div className="max-w-6xl mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -4,6 +4,7 @@ import MusicianList from "./components/MusicianList";
 import CreateEditMusician from "./components/CreateEditMusician";
 import { UserGroupIcon, PlusIcon } from "@heroicons/react/24/solid";
 import type { IMusician } from "../../interfaces/IMusician";
+import HeaderComponent from "../../utils/HeaderComponent";
 
 function Team() {
     const { musicians, user } = useAuthContext();
@@ -30,11 +31,7 @@ function Team() {
     };
 
     const handleDeleteMusician = async (musicianId: string) => {
-        if (
-            window.confirm(
-                "Are you sure you want to delete this musician?",
-            )
-        ) {
+        if (window.confirm("Are you sure you want to delete this musician?")) {
             // The delete is handled in the dialog component
             // But we need to close the dialog here if the musician matches
             if (selectedMusician?.id === musicianId) {
@@ -46,12 +43,7 @@ function Team() {
     return (
         <div>
             {/* Header */}
-            <div className="bg-blue-950 py-12 flex gap-4 items-center mx-auto justify-center">
-                <UserGroupIcon className="w-12 h-12 bg-blue-800 p-2 rounded-2xl border-blue-50" />
-                <h1 className="text-white text-center text-4xl font-bold">
-                    Team
-                </h1>
-            </div>
+            <HeaderComponent image="team" header="Team" />
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto p-4 text-black">

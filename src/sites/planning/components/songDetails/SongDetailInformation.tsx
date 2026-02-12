@@ -2,6 +2,7 @@ import { LinkIcon } from "@heroicons/react/24/outline";
 import type { IUser } from "../../../../interfaces/IUser";
 import { availableKeys } from "../../../../lib/availableKeys";
 import type { ISong } from "../../../../interfaces/ISong";
+import { useState } from "react";
 
 interface SongDetailsInformationProps {
     index: number;
@@ -18,6 +19,8 @@ function SongDetailInformation({
     item,
     isEdit,
 }: SongDetailsInformationProps) {
+    const [key, setKey] = useState<string | undefined>(item.key);
+
     return (
         <div className="flex items-center gap-4 flex-1">
             <div className="flex items-center gap-2">
@@ -32,10 +35,14 @@ function SongDetailInformation({
                             <>
                                 {isEdit ? (
                                     <select
-                                        value={item.key || ""}
-                                        onChange={(e) =>
-                                            onKeyChange(item.id, e.target.value)
-                                        }
+                                        value={key}
+                                        onChange={(e) => {
+                                            setKey(e.target.value);
+                                            onKeyChange(
+                                                item.id,
+                                                e.target.value,
+                                            );
+                                        }}
                                         defaultValue={item.key}
                                         className="px-3 py-1 bg-slate-600 text-gray-100 border border-slate-500 rounded hover:bg-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                     >
@@ -58,6 +65,9 @@ function SongDetailInformation({
                             </span>
                         )}
                         <p className="text-sm text-gray-300">|</p>
+                        <span className="text-sm text-gray-300">
+                            {item.order ?? ""}
+                        </span>
                     </div>
                     <div className="flex gap-2 pt-2">
                         <div
